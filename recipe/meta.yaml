@@ -34,6 +34,13 @@ about:
   home: https://github.com/Calysto/metakernel
   license: BSD 3-Clause
   summary: 'Metakernel for Jupyter.'
+  description: |
+      A Jupyter/IPython kernel template which includes core magic functions
+      (including help, command and file path completion, parallel and
+      distributed processing, downloads, and much more).
+  dev_url: https://github.com/Calysto/metakernel
+  doc_url: http://calysto.github.io/metakernel
+  doc_source_url: https://github.com/Calysto/metakernel/tree/master/docs/source
 
 extra:
   recipe-maintainers:
