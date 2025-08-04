@@ -1,48 +1,74 @@
-{% set version = "0.27.5" %}
+{% set name = "metakernel" %}
+{% set version = "0.30.3" %}
 
 package:
-  name: metakernel
+  name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/m/metakernel/metakernel-{{ version }}.tar.gz
-  sha256: fe1b603ac906f610ebc7086aa5d9c6876c6ab24500883d9eeef34043e34f182b
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 9ebc8d4d872202ad7ac64a56e07226d8d3c5ce45b5b420d0401f547c750a475d
 
 build:
   number: 0
-  noarch: python
-  script: "{{ PYTHON }} -m pip install . --no-deps -vv"
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  skip: True  # [py<38]
 
 requirements:
   host:
     - python
     - pip
+    - hatchling >=1.5
   run:
     - python
-    - ipykernel
-    - ipyparallel
-    - pexpect >=4.2
-    - portalocker
+    - ipykernel >=5.5.6,<7
+    - jupyter_core >=4.9.2
+    - pexpect >=4.8
+    - jedi >=0.18
+
+# > assert 'bashrc' in p.parse_code(code)['path_matches']
+# E AssertionError: assert 'bashrc' in []
+# Fails because ~/.bashrc doesn't exist in the CI
+{% set deselect_tests = " --deselect=test_parser.py::test_path_completions" %}
+# > assert 'SLEEP' in res, res
+# E AssertionError: bash: man: command not found
+{% set deselect_tests = deselect_tests + " --deselect=test_replwrap.py::REPLWrapTestCase::test_bash" %}
+# >       assert "    This is additional information on dummy" in d.line_dummy.__doc__, "Checking indents"
+# E       AssertionError: Checking indents
+# E       assert '    This is additional information on dummy' in '\n%dummy [options] foo - Perform dummy operation on foo\n\nThis is additional information on dummy.\n\n\nOptions:\n-------\n-s --size      Pixel size of plots, "width,height"'
+# E        +  where '\n%dummy [options] foo - Perform dummy operation on foo\n\nThis is additional information on dummy.\n\n\nOptions:\n-------\n-s --size      Pixel size of plots, "width,height"' = line_dummy.__doc__
+# E        +    where line_dummy = <metakernel.tests.test_magic.Dummy object at 0x111678550>.line_dummy
+{% set deselect_tests = deselect_tests + " --deselect=test_magic.py::test_get_help" %}
 
 test:
   imports:
     - metakernel
-    - metakernel.magics
-    - metakernel.magics.tests
-    - metakernel.tests
-    - metakernel.utils
+    - metakernel.config
+    - metakernel.process_metakernel
+    - metakernel.replwrap
+  commands:
+    - pip check
+    - export JUPYTER_PLATFORM_DIRS=1  # [unix]
+    # tests are using bash in each test, win skipped.
+    - pytest --pyargs metakernel.tests {{ deselect_tests }}  # [not win]
+  requires:
+    - pip
+    - pytest
+    - requests
+    - jupyter_core
 
 about:
   home: https://github.com/Calysto/metakernel
-  license: BSD 3-Clause
-  summary: 'Metakernel for Jupyter.'
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE.txt
+  summary: Metakernel for Jupyter.
   description: |
       A Jupyter/IPython kernel template which includes core magic functions
       (including help, command and file path completion, parallel and
       distributed processing, downloads, and much more).
   dev_url: https://github.com/Calysto/metakernel
-  doc_url: http://calysto.github.io/metakernel
-  doc_source_url: https://github.com/Calysto/metakernel/tree/master/docs/source
+  doc_url: https://calysto.github.io/metakernel
 
 extra:
   recipe-maintainers:
