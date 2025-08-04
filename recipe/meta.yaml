@@ -32,13 +32,13 @@ requirements:
 {% set deselect_tests = " --deselect=test_parser.py::test_path_completions" %}
 # > assert 'SLEEP' in res, res
 # E AssertionError: bash: man: command not found
-{% set deselect_tests = " --deselect=test_replwrap.py::REPLWrapTestCase::test_bash" %}
+{% set deselect_tests = deselect_tests + " --deselect=test_replwrap.py::REPLWrapTestCase::test_bash" %}
 # >       assert "    This is additional information on dummy" in d.line_dummy.__doc__, "Checking indents"
 # E       AssertionError: Checking indents
 # E       assert '    This is additional information on dummy' in '\n%dummy [options] foo - Perform dummy operation on foo\n\nThis is additional information on dummy.\n\n\nOptions:\n-------\n-s --size      Pixel size of plots, "width,height"'
 # E        +  where '\n%dummy [options] foo - Perform dummy operation on foo\n\nThis is additional information on dummy.\n\n\nOptions:\n-------\n-s --size      Pixel size of plots, "width,height"' = line_dummy.__doc__
 # E        +    where line_dummy = <metakernel.tests.test_magic.Dummy object at 0x111678550>.line_dummy
-{% set deselect_tests = " --deselect=test_magic.py::test_get_help" %}
+{% set deselect_tests = deselect_tests + " --deselect=test_magic.py::test_get_help" %}
 
 test:
   imports:
