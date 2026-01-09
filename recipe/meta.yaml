@@ -40,7 +40,7 @@ requirements:
 # E        +    where line_dummy = <metakernel.tests.test_magic.Dummy object at 0x111678550>.line_dummy
 {% set deselect_tests = deselect_tests ~ " --deselect=test_magic.py::test_get_help" %}
 # Access to tmp is unstable in CI env
-{% set deselect_tests = deselect_tests ~ " -k "not test_complete" %}  # [linux]
+{% set deselect_tests = deselect_tests ~ " -k \"not test_complete\"" %}  # [linux]
 
 test:
   imports:
