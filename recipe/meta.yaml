@@ -1,18 +1,18 @@
 {% set name = "metakernel" %}
-{% set version = "0.30.3" %}
+{% set version = "0.30.4" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 9ebc8d4d872202ad7ac64a56e07226d8d3c5ce45b5b420d0401f547c750a475d
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 48858f88630db0470f224713d07638ffd411b75c313f06316462d43a3cb082e8
 
 build:
   number: 0
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
-  skip: True  # [py<38]
+  skip: true  # [py<39]
 
 requirements:
   host:
@@ -32,13 +32,15 @@ requirements:
 {% set deselect_tests = " --deselect=test_parser.py::test_path_completions" %}
 # > assert 'SLEEP' in res, res
 # E AssertionError: bash: man: command not found
-{% set deselect_tests = deselect_tests + " --deselect=test_replwrap.py::REPLWrapTestCase::test_bash" %}
+{% set deselect_tests = deselect_tests ~ " --deselect=test_replwrap.py::REPLWrapTestCase::test_bash" %}
 # >       assert "    This is additional information on dummy" in d.line_dummy.__doc__, "Checking indents"
 # E       AssertionError: Checking indents
 # E       assert '    This is additional information on dummy' in '\n%dummy [options] foo - Perform dummy operation on foo\n\nThis is additional information on dummy.\n\n\nOptions:\n-------\n-s --size      Pixel size of plots, "width,height"'
 # E        +  where '\n%dummy [options] foo - Perform dummy operation on foo\n\nThis is additional information on dummy.\n\n\nOptions:\n-------\n-s --size      Pixel size of plots, "width,height"' = line_dummy.__doc__
 # E        +    where line_dummy = <metakernel.tests.test_magic.Dummy object at 0x111678550>.line_dummy
-{% set deselect_tests = deselect_tests + " --deselect=test_magic.py::test_get_help" %}
+{% set deselect_tests = deselect_tests ~ " --deselect=test_magic.py::test_get_help" %}
+# Access to tmp is unstable in CI env
+{% set deselect_tests = deselect_tests ~ " -k \"not test_complete\"" %}  # [linux]
 
 test:
   imports:
@@ -64,9 +66,9 @@ about:
   license_file: LICENSE.txt
   summary: Metakernel for Jupyter.
   description: |
-      A Jupyter/IPython kernel template which includes core magic functions
-      (including help, command and file path completion, parallel and
-      distributed processing, downloads, and much more).
+    A Jupyter/IPython kernel template which includes core magic functions
+    (including help, command and file path completion, parallel and
+    distributed processing, downloads, and much more).
   dev_url: https://github.com/Calysto/metakernel
   doc_url: https://calysto.github.io/metakernel
 
